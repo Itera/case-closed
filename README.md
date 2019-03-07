@@ -3,7 +3,7 @@ Project repo for Ariot19
 
 ### Badges
 
-- [ ] **[Description here]**
+- [x] **[Description here]**
 - [ ] AckWard
 - [ ] ~~Attach of the drones~~
 - [ ] **Babelfish (5 programming languages)**
@@ -25,7 +25,7 @@ Project repo for Ariot19
 - [ ] The analyst
 - [ ] The assembler
 - [ ] **The presenter**
-- [ ] **Solder soldier**
+- [x] **Solder soldier**
 - [ ] **Three dimensions**
 - [ ] Wear me!
 - [ ] **This is intense!**
