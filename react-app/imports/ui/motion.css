@@ -1,0 +1,48 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+#wrapper {
+    display: flex;
+    height: 100vh;
+    justify-content: center;
+}
+
+#controls {
+    display: inline-grid;
+    grid-column-gap: 20px;
+    grid-row-gap: 20px;
+    align-self: end;
+}
+
+.movements_control {
+    border: solid 1px black;
+    margin: 0;
+    padding: 0;
+}
+
+#left {
+    grid-row-start: 2;
+    grid-column-start: 1;
+}
+
+#up {
+    grid-row-start: 1;
+    grid-column-start: 2;
+}
+
+#down {
+    grid-row-start: 3;
+    grid-column-start: 2;
+}
+
+#right {
+    grid-row-start: 2;
+    grid-column-start: 3;
+}
+
+.movements_control {
+    width: 200px;
+    height: 200px;
+}
