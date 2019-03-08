@@ -6,7 +6,7 @@ from flask import Flask, jsonify
 from arduino import Arduino
 from play import Player
 from temperature_humidity import get_temp_humidity
-# from display import Display
+from display import Display
 
 
 HOST = '0.0.0.0'
@@ -16,6 +16,12 @@ TIMEOUT = 10.0 # Windows will sleep forever, ignore Ctrl+C, and my keyboard does
 POLL_INTERVAL = 0.1 # seconds
 SOUND_FILEPATH = '/home/pi/rain-02.mp3'
 
+WEIGHT_WARNING = 18.0 # kg
+WEIGHT_CRITICAL = 23.0 # kg
+PAGE_NAME_TAG = 0
+PAGE_WEIGHT_WARNING = 1
+PAGE_WEIGHT_CRITICAL = 2
+
 
 class Poller(threading.Thread):
   def __init__(self):
@@ -24,12 +30,70 @@ class Poller(threading.Thread):
 
     device = sys.argv[1] if len(sys.argv) > 1 else None
     self._arduino = Arduino(device=device, timeout=TIMEOUT)
-    # self._display = Display()
+    self._display = Display()
+    self._current_page = None
     self._player = None
 
     self.weight = 0.0
     self.temperature = 0.0
     self.humidity = 0.0
+
+  def _update_values(self):
+    # Poll values from Arduino and other sensors.
+    # Dirty hack: data is sendt as string, message format is defined as '#<float>|<int>;'.
+    raw = self._arduino.read_until(b';').decode('utf8')
+
+    if raw[0] != '#':
+      continue
+
+    if raw[-1] != ';':
+      continue
+
+    try:
+      weight, button_state = raw[1:-1].split('|')
+      self.weight = float(weight)
+      button_state = int(button_state)
+    except Exception as e:
+      print(e)
+      continue
+
+    self.temperature, self.humidity = get_temp_humidity()
+
+  def _update_display(self):
+    # Show weight warning page.
+    if self.weight > WEIGHT_WARNING:
+      self._page = PAGE_WEIGHT_WARNING
+      self.set_text('HEAVY\n{:.2f} kg'.format(self.weight))
+      self.set_RGB(200, 200, 0)
+      return
+
+    # Show critical weight page.
+    if self.weight > WEIGHT_CRITICAL:
+      self._page = PAGE_WEIGHT_CRITICAL
+      self.set_text('HEAVY!!\n{:.2f} kg'.format(self.weight))
+      self.set_RGB(255, 0, 0)
+      return
+
+    # if temperature > ...:
+    #   self._page = PAGE_
+    #   self.set_text('T: {:.2f} C\nH: {:.2f} %')
+    #   self.set_RGB(0, 0, 200)
+    #   return
+
+    # Fall back to name tag page (no need to redraw).
+    if self._page != PAGE_NAME_TAG:
+      self._page = PAGE_NAME_TAG
+      self.set_text('Marianne\nsin!')
+      self.set_RGB(0, 0, 200)
+
+  def _execute_actions(self):
+    # Play sound if button is pressed.
+    if button_state > 0 and (self._player is None or not self._player.is_alive()):
+      print('playing soothing toilet-music.')
+      self._player = Player(SOUND_FILEPATH)
+      self._player.start()
+
+  # Public.
 
   def cancel(self):
     self._cancelled.set()
@@ -40,34 +104,9 @@ class Poller(threading.Thread):
       if self._cancelled.wait(POLL_INTERVAL):
         break
 
-      # Poll values from Arduino and other sensors.
-      # Dirty hack: data is sendt as string, message format is defined as '#<float>|<int>;'.
-      raw = self._arduino.read_until(b';').decode('utf8')
-
-      if raw[0] != '#':
-        continue
-
-      if raw[-1] != ';':
-        continue
-
-      try:
-        weight, button_state = raw[1:-1].split('|')
-        self.weight = float(weight)
-        button_state = int(button_state)
-      except Exception as e:
-        print(e)
-        continue
-
-      self.temperature, self.humidity = get_temp_humidity()
-
-      # TODO: Update display.
-      pass
-
-      # Execute button actions.
-      if button_state > 0 and (self._player is None or not self._player.is_alive()):
-        print('playing soothing toilet-music.')
-        self._player = Player(SOUND_FILEPATH)
-        self._player.start()
+      self._update_values()
+      self._update_display()
+      self._execute_actions()
 
       print(self.weight, button_state, self.temperature, self.humidity)
 
