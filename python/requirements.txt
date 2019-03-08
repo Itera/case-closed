@@ -1,2 +1,4 @@
+grovepi
 flask
+pygame
 pyserial
