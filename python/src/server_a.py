@@ -18,9 +18,13 @@ SOUND_FILEPATH = '/home/pi/rain-02.mp3'
 
 WEIGHT_WARNING = 18.0 # kg
 WEIGHT_CRITICAL = 23.0 # kg
+HUMID_WARNING = 30.0 # kg
+TEMPERATURE_WARNING = 25.0 # kg
+
 PAGE_NAME_TAG = 0
 PAGE_WEIGHT_WARNING = 1
 PAGE_WEIGHT_CRITICAL = 2
+PAGE_TEMPHUMID_WARNING = 3
 
 
 class Poller(threading.Thread):
@@ -34,6 +38,7 @@ class Poller(threading.Thread):
     self._current_page = None
     self._player = None
 
+    self._button_state = 0
     self.weight = 0.0
     self.temperature = 0.0
     self.humidity = 0.0
@@ -44,51 +49,47 @@ class Poller(threading.Thread):
     raw = self._arduino.read_until(b';').decode('utf8')
 
     if raw[0] != '#':
-      continue
+      raise Exception('Invalid start of message.')
 
     if raw[-1] != ';':
-      continue
+      raise Exception('Invalid end of message.')
 
-    try:
-      weight, button_state = raw[1:-1].split('|')
-      self.weight = float(weight)
-      button_state = int(button_state)
-    except Exception as e:
-      print(e)
-      continue
+    weight, button_state = raw[1:-1].split('|')
+    self.weight = float(weight)
+    self._button_state = int(button_state)
 
     self.temperature, self.humidity = get_temp_humidity()
 
   def _update_display(self):
     # Show weight warning page.
     if self.weight > WEIGHT_WARNING:
-      self._page = PAGE_WEIGHT_WARNING
-      self.set_text('HEAVY\n{:.2f} kg'.format(self.weight))
-      self.set_RGB(200, 200, 0)
+      self._current_page = PAGE_WEIGHT_WARNING
+      self._display.set_text('HEAVY\n{:.2f} kg'.format(self.weight))
+      self._display.set_RGB(255, 255, 0)
       return
 
     # Show critical weight page.
     if self.weight > WEIGHT_CRITICAL:
-      self._page = PAGE_WEIGHT_CRITICAL
-      self.set_text('HEAVY!!\n{:.2f} kg'.format(self.weight))
-      self.set_RGB(255, 0, 0)
+      self._current_page = PAGE_WEIGHT_CRITICAL
+      self._display.set_text('HEAVY!!\n{:.2f} kg'.format(self.weight))
+      self._display.set_RGB(255, 0, 0)
       return
 
-    # if temperature > ...:
-    #   self._page = PAGE_
-    #   self.set_text('T: {:.2f} C\nH: {:.2f} %')
-    #   self.set_RGB(0, 0, 200)
-    #   return
+    if self.temperature > TEMPERATURE_WARNING or self.humidity > HUMID_WARNING:
+      self._current_page = PAGE_TEMPHUMID_WARNING
+      self._display.set_text('T: {:.2f} C\nH: {:.2f} %'.format(self.temperature, self.humidity))
+      self._display.set_RGB(255, 0, 255)
+      return
 
     # Fall back to name tag page (no need to redraw).
-    if self._page != PAGE_NAME_TAG:
-      self._page = PAGE_NAME_TAG
-      self.set_text('Marianne\nsin!')
-      self.set_RGB(0, 0, 200)
+    if self._current_page != PAGE_NAME_TAG:
+      self._current_page = PAGE_NAME_TAG
+      self._display.set_text('Marianne\nsin!')
+      self._display.set_RGB(0, 0, 255)
 
   def _execute_actions(self):
     # Play sound if button is pressed.
-    if button_state > 0 and (self._player is None or not self._player.is_alive()):
+    if self._button_state > 0 and (self._player is None or not self._player.is_alive()):
       print('playing soothing toilet-music.')
       self._player = Player(SOUND_FILEPATH)
       self._player.start()
@@ -104,11 +105,16 @@ class Poller(threading.Thread):
       if self._cancelled.wait(POLL_INTERVAL):
         break
 
-      self._update_values()
+      try:
+        self._update_values()
+      except Exception as e:
+        print(e)
+        continue
+
       self._update_display()
       self._execute_actions()
 
-      print(self.weight, button_state, self.temperature, self.humidity)
+      print(self.weight, self._button_state, self.temperature, self.humidity)
 
     # If player is playing music, wait for thread to stop.
     if self._player is not None:

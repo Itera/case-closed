@@ -24,7 +24,7 @@ class Display:
   def _text_command(self, cmd):
     self._bus.write_byte_data(DISPLAY_TEXT_ADDR, 0x80, cmd)
 
-  def _write_line(self, line, flush=False):
+  def _write_line(self, line, flush=True):
     if flush:
       line = '{:<16s}'.format(line)
 
@@ -45,7 +45,7 @@ class Display:
     self._bus.write_byte_data(DISPLAY_RGB_ADDR, 3, g)
     self._bus.write_byte_data(DISPLAY_RGB_ADDR, 2, b)
 
-  def set_text(self, text, flush=False):
+  def set_text(self, text, flush=True):
     self._text_command(0x08 | 0x04) # display on, no cursor
     self._text_command(0x28) # 2 lines
     time.sleep(0.05)
