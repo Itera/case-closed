@@ -5,24 +5,26 @@
 
 
 void setup() {
-  // TODO: Init motor pins?
   Serial.begin(9600);
+
+  pinMode(D1, OUTPUT);
+  pinMode(D2, OUTPUT);
 }
 
 void startLeft() {
-  // TODO
+  digitalWrite(D1, HIGH);
 }
 
 void startRight() {
-  // TODO
+  digitalWrite(D2, HIGH);
 }
 
 void stopLeft() {
-  // TODO
+  digitalWrite(D1, LOW);
 }
 
 void stopRight() {
-  // TODO
+  digitalWrite(D2, LOW);
 }
 
 void loop() {
