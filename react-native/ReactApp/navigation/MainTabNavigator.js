@@ -20,7 +20,7 @@ DashboardStack.navigationOptions = {
       name={
         Platform.OS === 'ios'
           ? `ios-information-circle${focused ? '' : '-outline'}`
-          : 'md-information-circle'
+          : 'md-home'
       }
     />
   ),
@@ -35,7 +35,21 @@ MotionStack.navigationOptions = {
   tabBarIcon: ({ focused }) => (
     <TabBarIcon
       focused={focused}
-      name={Platform.OS === 'ios' ? 'ios-link' : 'md-link'}
+      name={Platform.OS === 'ios' ? 'ios-link' : 'md-rocket'}
+    />
+  ),
+};
+
+const CameraStack = createStackNavigator({
+  Settings: CameraScreen,
+});
+
+CameraStack.navigationOptions = {
+  tabBarLabel: 'Camera',
+  tabBarIcon: ({ focused }) => (
+    <TabBarIcon
+      focused={focused}
+      name={Platform.OS === 'ios' ? 'ios-options' : 'md-camera'}
     />
   ),
 };
@@ -54,23 +68,9 @@ ConfigStack.navigationOptions = {
   ),
 };
 
-const CameraStack = createStackNavigator({
-  Settings: CameraScreen,
-});
-
-CameraStack.navigationOptions = {
-  tabBarLabel: 'Camera',
-  tabBarIcon: ({ focused }) => (
-    <TabBarIcon
-      focused={focused}
-      name={Platform.OS === 'ios' ? 'ios-options' : 'md-options'}
-    />
-  ),
-};
-
 export default createBottomTabNavigator({
   DashboardStack,
   MotionStack,
-  ConfigStack,
   CameraStack,
+  ConfigStack,
 });
