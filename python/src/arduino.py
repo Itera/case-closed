@@ -6,7 +6,7 @@ import serial.tools.list_ports
 BAUDRATE = 9600
 
 
-class NoCommAvailable(Exception):
+class NoDeviceAvailable(Exception):
   '''
   Raised when the (correct) COM port could not be found.
   '''
@@ -14,14 +14,17 @@ class NoCommAvailable(Exception):
 
 
 class Arduino(serial.Serial):
-  def __init__(self, timeout=None):
-    # TODO: Probe all ports.
-    ports = serial.tools.list_ports.comports()
+  def __init__(self, device=None, timeout=None):
+    if device is None:
+      # TODO: Probe all ports.
+      ports = serial.tools.list_ports.comports()
 
-    if len(ports) == 0:
-      raise NoCommAvailable()
+      if len(ports) == 0:
+        raise NoDeviceAvailable()
 
-    serial.Serial.__init__(self, port=ports[0].device, baudrate=BAUDRATE, timeout=timeout)
+      device = ports[0].device
+
+    serial.Serial.__init__(self, port=device, baudrate=BAUDRATE, timeout=timeout)
 
   # Single values.
 

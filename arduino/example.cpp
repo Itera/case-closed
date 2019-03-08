@@ -1,9 +1,9 @@
 #include <Arduino.h>
 
-char READ_W0 = '0';
-char READ_W1 = '1';
-char LIGHT_ON = '2';
-char LIGHT_OFF = '3';
+#define READ_W0 0
+#define READ_W1 1
+#define LIGHT_ON 2
+#define LIGHT_OFF 3
 
 
 void send_float(float val) {
