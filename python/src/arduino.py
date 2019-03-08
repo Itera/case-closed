@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import struct
-
 import serial.tools.list_ports
 
 
@@ -25,6 +24,9 @@ class Arduino(serial.Serial):
     serial.Serial.__init__(self, port=ports[0].device, baudrate=BAUDRATE, timeout=timeout)
 
   # Single values.
+
+  def send_int(self, value):
+    self.write(struct.pack('b', value))
 
   def fetch_int(self):
     return self.fetch_ints(1)[0]
