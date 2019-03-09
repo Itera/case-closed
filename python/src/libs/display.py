@@ -24,10 +24,8 @@ class Display:
   def _text_command(self, cmd):
     self._bus.write_byte_data(DISPLAY_TEXT_ADDR, 0x80, cmd)
 
-  def _write_line(self, line, flush=True):
-    if flush:
-      line = '{:<16s}'.format(line)
-
+  def _write_line(self, line):
+    line = '{:<16s}'.format(line)
     for col, char in enumerate(line):
       if col >= 16:
         break
@@ -45,7 +43,7 @@ class Display:
     self._bus.write_byte_data(DISPLAY_RGB_ADDR, 3, g)
     self._bus.write_byte_data(DISPLAY_RGB_ADDR, 2, b)
 
-  def set_text(self, text, flush=True):
+  def set_text(self, text):
     self._text_command(0x08 | 0x04) # display on, no cursor
     self._text_command(0x28) # 2 lines
     time.sleep(0.05)
@@ -54,11 +52,18 @@ class Display:
     time.sleep(0.05)
 
     lines = text.split('\n')
+    line1 = ''
+    line2 = ''
 
-    self._write_line(lines[0], flush=flush)
+    if len(lines) > 0:
+      line1 = lines[0]
+
     if len(lines) > 1:
-      self._text_command(0xc0)
-      self._write_line(lines[1], flush=flush)
+      line2 = lines[1]
+
+    self._write_line(line1)
+    self._text_command(0xc0)
+    self._write_line(line2)
 
   def turn_off(self):
     self.clear()

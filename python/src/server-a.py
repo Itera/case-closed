@@ -13,6 +13,9 @@ from libs.temperature_humidity import get_temp_humidity
 HOST = '0.0.0.0'
 PORT = 5010
 
+
+SCALE_FACTOR = 5.0 / 0.887 # Carefully measured ;)
+
 TIMEOUT = 10.0 # Windows will sleep forever, ignore Ctrl+C, and my keyboard does not have the 'break' key...
 POLL_INTERVAL = 0.1 # seconds
 SOUND_FILEPATH = '/home/pi/rain-02.mp3'
@@ -90,7 +93,7 @@ class Poller(threading.Thread):
       raise Exception('Invalid end of message.')
 
     weight, button_state = raw[1:-1].split('|')
-    self.weight = float(weight)
+    self.weight = float(weight) * SCALE_FACTOR
     self._button_state = int(button_state)
 
     self.temperature, self.humidity = get_temp_humidity()
@@ -190,7 +193,7 @@ class Server(Flask):
 
   def _tare_weight(self):
     self._source.send_tare()
-    return 'TARED'
+    return ''
 
   def _get_temperature(self):
     return str(self._source.temperature)
