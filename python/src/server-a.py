@@ -3,11 +3,11 @@ import sys
 import threading
 from flask import Flask, jsonify, request, abort
 
-from lib.arduino import Arduino
-from lib.buzzer import beep
-from lib.display import Display
-from lib.play import Player
-from lib.temperature_humidity import get_temp_humidity
+from libs.arduino import Arduino
+from libs.buzzer import beep
+from libs.display import Display
+from libs.play import Player
+from libs.temperature_humidity import get_temp_humidity
 
 
 HOST = '0.0.0.0'
@@ -30,6 +30,8 @@ PAGE_WEIGHT_WARNING = 1
 PAGE_WEIGHT_CRITICAL = 2
 PAGE_TEMPHUMID_WARNING = 3
 
+COMMAND_TARE = 1
+
 
 def load_nametag():
   try:
@@ -51,6 +53,7 @@ class Poller(threading.Thread):
 
     device = sys.argv[1] if len(sys.argv) > 1 else None
     self._arduino = Arduino(device=device, timeout=TIMEOUT)
+    self._arduino_lock = threading.Lock()
     self._display = Display()
     self._player = None
 
@@ -77,7 +80,8 @@ class Poller(threading.Thread):
   def _update_values(self):
     # Poll values from Arduino and other sensors.
     # Dirty hack: data is sendt as string, message format is defined as '#<float>|<int>;'.
-    raw = self._arduino.read_until(b';').decode('utf8')
+    with self._arduino_lock:
+      raw = self._arduino.read_until(b';').decode('utf8')
 
     if raw[0] != '#':
       raise Exception('Invalid start of message.')
@@ -164,12 +168,18 @@ class Poller(threading.Thread):
     # Turn off screen.
     self._display.turn_off()
 
+  def send_tare(self):
+    with self._arduino_lock:
+      self._arduino.send_int(COMMAND_TARE)
+
+
 class Server(Flask):
   def __init__(self, source):
     Flask.__init__(self, __name__)
     self._source = source
 
     self.route('/weight', methods=['GET'])(self._get_weight)
+    self.route('/weight/tare', methods=['GET'])(self._tare_weight)
     self.route('/temperature', methods=['GET'])(self._get_temperature)
     self.route('/humidity', methods=['GET'])(self._get_humidity)
     self.route('/sensors', methods=['GET'])(self._get_sensors)
@@ -177,6 +187,10 @@ class Server(Flask):
 
   def _get_weight(self):
     return str(self._source.weight)
+
+  def _tare_weight(self):
+    self._source.send_tare()
+    return 'TARED'
 
   def _get_temperature(self):
     return str(self._source.temperature)
