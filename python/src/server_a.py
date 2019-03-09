@@ -4,9 +4,10 @@ import threading
 from flask import Flask, jsonify, request, abort
 
 from arduino import Arduino
+from buzzer import beep
+from display import Display
 from play import Player
 from temperature_humidity import get_temp_humidity
-from display import Display
 
 
 HOST = '0.0.0.0'
@@ -53,6 +54,7 @@ class Poller(threading.Thread):
     self._display = Display()
     self._player = None
 
+    self._beeped = False
     self._nametag = load_nametag()
     self._nametag_dirty = True
     self._current_page = None
@@ -123,6 +125,14 @@ class Poller(threading.Thread):
       print('playing soothing toilet-music.')
       self._player = Player(SOUND_FILEPATH)
       self._player.start()
+
+    # Play buzzer when bag is too heavy.
+    if self.weight < WEIGHT_CRITICAL:
+      if not self._beeped:
+        beep()
+        self._beeped = True
+    else:
+      self._beeped = False
 
   # Public.
 
