@@ -9,7 +9,7 @@
 #define COMMAND_LED 2
 
 #define SCALE_FACTOR -96650
-#define POLL_DELAY 500
+#define POLL_DELAY 100
 
 
 HX711 scale(DOUT, CLK);
