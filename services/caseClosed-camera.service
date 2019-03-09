@@ -1,0 +1,14 @@
+[Unit]
+Description=CaseClosed Camera API
+After=serial-getty
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=pi
+ExecStart=/usr/bin/python /usr/local/bin/caseClosed/python/camera-api.py
+
+[Install]
+WantedBy=multi-user.target
