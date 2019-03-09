@@ -7,14 +7,14 @@ import {
 } from 'react-native';
 import { MapView } from 'expo';
 
-import { getSensors } from '../api/service';
+import { getSensors, getLocation } from '../api/service';
 
 
 export default class HomeScreen extends React.Component {
   state = {
-    latitude: 37.78825,
-    longitude: -122.4324,
-    locationDelta: 0.0922,
+    latitude: undefined,
+    longitude: undefined,
+    locationDelta: undefined,
   };
 
   static navigationOptions = {
@@ -22,6 +22,14 @@ export default class HomeScreen extends React.Component {
   };
 
   componentDidMount = () => {
+    getLocation().then(res => {
+      console.log(res);
+      this.setState({
+        latitude: res.location.lat,
+        longitude: res.location.lng,
+        locationDelta: res.accuracy/1000,
+      });
+    });
     setTimeout(() => {
       this.pullData()
     }, 500);
@@ -40,20 +48,23 @@ export default class HomeScreen extends React.Component {
       temperature,
       humidity,
     } = this.state;
+    console.log(this.state);
     return (
       <View style={styles.container}>
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
           <Text style={styles.weightText}>Hello :)</Text>
           <Text style={styles.centerText}>Here is the location of your suitcase:</Text>
-          <MapView
-            style={styles.map}
-            initialRegion={{
-              latitude,
-              longitude,
-              latitudeDelta: locationDelta,
-              longitudeDelta: locationDelta,
-            }}
-          />
+          {latitude && longitude && locationDelta &&
+            <MapView
+              style={styles.map}
+              initialRegion={{
+                latitude,
+                longitude,
+                latitudeDelta: locationDelta,
+                longitudeDelta: locationDelta,
+              }}
+            />
+          }
           <View style={styles.weightContainer}>
             <Text>The weight of your suitcase is</Text>
             <Text style={styles.weightText}>{weight} kg</Text>

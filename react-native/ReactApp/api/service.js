@@ -46,3 +46,21 @@ export function move(command) {
     method: 'GET'
   });
 }
+
+export function getLocation() {
+
+  const body = JSON.stringify({
+    wifiAccessPoints: [{
+      macAddress: '00:0a:95:9d:68:16',
+    }]
+  });
+
+  return fetch('https://www.googleapis.com/geolocation/v1/geolocate?key=AIzaSyAFZvBvAPshSrSCnvyhG0ejTRwrA1gXI8o', {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body,
+  }).then(res => JSON.parse(res._bodyText));
+}
