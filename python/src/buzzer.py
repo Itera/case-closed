@@ -7,6 +7,8 @@ BEEP_TIME = 0.5 # seconds
 
 
 def beep():
-  grovepi.digitalWrite(BUZZER_PORT, 1)
-  time.sleep(BEEP_TIME)
-  grovepi.digitalWrite(BUZZER_PORT, 0)
+  try:
+    grovepi.digitalWrite(BUZZER_PORT, 1)
+    time.sleep(BEEP_TIME)
+  finally:
+    grovepi.digitalWrite(BUZZER_PORT, 0)

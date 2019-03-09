@@ -59,3 +59,8 @@ class Display:
     if len(lines) > 1:
       self._text_command(0xc0)
       self._write_line(lines[1], flush=flush)
+
+  def turn_off(self):
+    self.clear()
+    self.set_RGB(0, 0, 0)
+    time.sleep(0.1)

@@ -127,7 +127,7 @@ class Poller(threading.Thread):
       self._player.start()
 
     # Play buzzer when bag is too heavy.
-    if self.weight < WEIGHT_CRITICAL:
+    if self.weight > WEIGHT_CRITICAL:
       if not self._beeped:
         beep()
         self._beeped = True
@@ -160,6 +160,9 @@ class Poller(threading.Thread):
     if self._player is not None:
       self._player.join()
       self._player = None
+
+    # Turn off screen.
+    self._display.turn_off()
 
 class Server(Flask):
   def __init__(self, source):
