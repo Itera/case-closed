@@ -9,6 +9,7 @@
 #define COMMAND_TARE 1
 
 #define SCALE_FACTOR -96650
+#define POLL_DELAY 100
 
 
 HX711 scale(DOUT, CLK);
@@ -48,5 +49,5 @@ void loop() {
   Serial.print("|");
   Serial.print(digitalRead(BUTTON_SOUND) == LOW ? "1" : "0");
   Serial.print(";");
-  delay(200); // Delay is needed, or the button state will not print correctly. Should maby be tweaked?
+  delay(POLL_DELAY); // Delay is needed, or the button state will not print correctly. Should maby be tweaked?
 }
