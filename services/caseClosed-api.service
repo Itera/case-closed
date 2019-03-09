@@ -1,0 +1,14 @@
+[Unit]
+Description=CaseClosed web API
+After=network.target caseClosed.thingy
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=pi
+ExecStart=/usr/bin/python /usr/local/bin/caseClosed/python/api.py
+
+[Install]
+WantedBy=multi-user.target

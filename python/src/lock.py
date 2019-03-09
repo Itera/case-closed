@@ -28,7 +28,7 @@ def _spin(halfstep_seq):
       time.sleep(0.001)
 
 def lock():
-  _spin(halfstep_seq[::-1])
+  _spin(halfstep_seq)
   GPIO.cleanup()
 
 def unlock():
