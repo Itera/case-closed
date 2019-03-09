@@ -6,6 +6,8 @@ from flask import Flask
 
 from libs.arduino import Arduino
 
+from lock import lock, unlock
+
 
 HTTP_200_OK = 200
 HTTP_404_NOT_FOUND = 404
@@ -30,6 +32,7 @@ class Server(Flask):
     self._arduino = Arduino(device=device, timeout=TIMEOUT)
     self.route('/weight/<int:i>', methods=['GET'])(self._get_weight)
     self.route('/light/<string:on_off>', methods=['GET'])(self._set_light)
+    self.route('/lock/<boolean:lock>', methods=['GET'])(self._lock)
 
   def _get_weight(self, i):
     if i == 0:
@@ -52,6 +55,12 @@ class Server(Flask):
       return '', HTTP_200_OK
 
     return 'Unknown light state {:s}.'.format(on_off), HTTP_404_NOT_FOUND
+
+  def _lock(self, lock):
+    if not lock:
+      unlock()
+    else:
+      lock()
 
 
 if __name__ == '__main__':
