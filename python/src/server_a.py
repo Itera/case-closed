@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import threading
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request, abort
 
 from arduino import Arduino
 from play import Player
@@ -11,10 +11,13 @@ from display import Display
 
 HOST = '0.0.0.0'
 PORT = 5010
+HTTP_404_NOT_FOUND = 404
 
 TIMEOUT = 10.0 # Windows will sleep forever, ignore Ctrl+C, and my keyboard does not have the 'break' key...
 POLL_INTERVAL = 0.1 # seconds
 SOUND_FILEPATH = '/home/pi/rain-02.mp3'
+NAMETAG_FILEPATH = '/home/pi/nametag.txt'
+DEFAULT_NAMETAG = '  Case  \nClosed!!'
 
 WEIGHT_WARNING = 18.0 # kg
 WEIGHT_CRITICAL = 23.0 # kg
@@ -27,6 +30,19 @@ PAGE_WEIGHT_CRITICAL = 2
 PAGE_TEMPHUMID_WARNING = 3
 
 
+def load_nametag():
+  try:
+    with open(NAMETAG_FILEPATH, 'r') as fp:
+      return fp.read()
+
+  except Exception:
+    return DEFAULT_NAMETAG
+
+def save_nametag(text):
+  with open(NAMETAG_FILEPATH, 'w') as fp:
+    fp.write(text)
+
+
 class Poller(threading.Thread):
   def __init__(self):
     threading.Thread.__init__(self)
@@ -35,13 +51,26 @@ class Poller(threading.Thread):
     device = sys.argv[1] if len(sys.argv) > 1 else None
     self._arduino = Arduino(device=device, timeout=TIMEOUT)
     self._display = Display()
-    self._current_page = None
     self._player = None
 
+    self._nametag = load_nametag()
+    self._nametag_dirty = True
+    self._current_page = None
     self._button_state = 0
+
     self.weight = 0.0
     self.temperature = 0.0
     self.humidity = 0.0
+
+  @property
+  def nametag(self):
+    return self._nametag
+
+  @nametag.setter
+  def nametag(self, value):
+    save_nametag(value)
+    self._nametag_dirty = True
+    self._nametag = value
 
   def _update_values(self):
     # Poll values from Arduino and other sensors.
@@ -82,9 +111,10 @@ class Poller(threading.Thread):
       return
 
     # Fall back to name tag page (no need to redraw).
-    if self._current_page != PAGE_NAME_TAG:
+    if self._current_page != PAGE_NAME_TAG or self._nametag_dirty:
       self._current_page = PAGE_NAME_TAG
-      self._display.set_text('Marianne\nsin!')
+      self._nametag_dirty = False
+      self._display.set_text(self.nametag)
       self._display.set_RGB(0, 0, 255)
 
   def _execute_actions(self):
@@ -130,6 +160,7 @@ class Server(Flask):
     self.route('/temperature', methods=['GET'])(self._get_temperature)
     self.route('/humidity', methods=['GET'])(self._get_humidity)
     self.route('/sensors', methods=['GET'])(self._get_sensors)
+    self.route('/nametag', methods=['GET', 'POST'])(self._do_nametag)
 
   def _get_weight(self):
     return str(self._source.weight)
@@ -148,6 +179,15 @@ class Server(Flask):
     }
     return jsonify(data)
 
+  def _do_nametag(self):
+    if request.method == 'GET':
+      return self._source.nametag
+
+    if request.method == 'POST':
+      self._source.nametag = request.get_data()
+      return ''
+
+    abort(HTTP_404_NOT_FOUND)
 
 if __name__ == '__main__':
   poller = Poller()
