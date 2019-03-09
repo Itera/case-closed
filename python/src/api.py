@@ -10,6 +10,7 @@ from libs.play import Player
 from libs.temperature_humidity import get_temp_humidity
 
 
+DEVICE = '/dev/serial/by-id/usb-Arduino_Srl_Arduino_Uno_955303430353519002A1-if00'
 HOST = '0.0.0.0'
 PORT = 5010
 
