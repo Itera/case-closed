@@ -40,3 +40,9 @@ export function readTag() {
     },
   });
 }
+
+export function move(command) {
+  return fetch('http://192.168.1.138:5020/wheels/' + command, {
+    method: 'GET'
+  });
+}
