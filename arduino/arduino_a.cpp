@@ -9,7 +9,7 @@
 #define COMMAND_LED 2
 
 #define SCALE_FACTOR -96650
-#define POLL_DELAY 100
+#define POLL_DELAY 500
 
 
 HX711 scale(DOUT, CLK);
@@ -30,8 +30,6 @@ void loop() {
   // Check for command from serial.
   if (Serial.available()) {
     int command = Serial.read();
-    Serial.println("Got command:");
-    Serial.println(command);
 
     // Execute command.
     if (command == COMMAND_TARE) {
