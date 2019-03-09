@@ -6,7 +6,7 @@ from libs.arduino import Arduino
 
 HTTP_200_OK = 200
 TIMEOUT = 10.0 # Windows will sleep forever, ignore Ctrl+C, and my keyboard does not have the 'break' key...
-
+DEVICE_NAME='/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0'
 
 class Command(enum.Enum):
   STOP = 0
@@ -18,7 +18,7 @@ class Command(enum.Enum):
 class Server(Flask):
   def __init__(self):
     Flask.__init__(self, __name__)
-    self._arduino = Arduino(timeout=TIMEOUT)
+    self._arduino = Arduino(device=DEVICE_NAME, timeout=TIMEOUT)
     self.route('/wheels/stop', methods=['GET'])(self._stop)
     self.route('/wheels/left', methods=['GET'])(self._left)
     self.route('/wheels/right', methods=['GET'])(self._right)
