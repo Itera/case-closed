@@ -19,3 +19,24 @@ export function getSensors() {
     },
   }).then(res => JSON.parse(res._bodyText));
 }
+
+export function writeTag(text) {
+  fetch('http://192.168.1.138:5010/nametag', {
+    method: 'POST',
+    headers: {
+      Accept: 'text/html',
+      'Content-Type': 'text/html',
+    },
+    body: text,
+  });
+}
+
+export function readTag() {
+  return fetch('http://192.168.1.138:5010/nametag', {
+    method: 'GET',
+    headers: {
+      Accept: 'text/html',
+      'Content-Type': 'application/json',
+    },
+  });
+}

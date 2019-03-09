@@ -1,13 +1,26 @@
 import React from 'react';
-import { View, Text, TextInput, StyleSheet } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Button } from 'react-native';
+import { writeTag, readTag } from '../api/service';
 
 export default class ConfigScreen extends React.Component {
   state = {
-    text: "12345678, Adr. Oslo"
+    text: undefined
   };
 
   static navigationOptions = {
     title: 'Configuration',
+  };
+
+  componentWillMount = () => {
+    readTag().then(res => this.setState({ text: res._bodyText }));
+  };
+
+  handleChange = event => {
+    this.setState({ text: event.nativeEvent.text });
+  };
+
+  handleSubmit = () => {
+    writeTag(this.state.text);
   };
 
   render() {
@@ -16,9 +29,11 @@ export default class ConfigScreen extends React.Component {
         <Text>Enter text for luggage tag:</Text>
         <TextInput
           style={styles.input}
-          onChangeText={(text) => this.setState({text})}
+          onChange={this.handleChange}
           value={this.state.text}
+          multiline={true}
         />
+        <Button title="Submit" onPress={this.handleSubmit}/>
       </View>
     );
   }
@@ -33,11 +48,12 @@ const styles = StyleSheet.create({
   },
   input: {
     marginTop: 10,
-    height: 50,
+    marginBottom: 10,
     borderColor: '#ccc',
     borderRadius: 0.5,
     borderWidth: 2,
     paddingLeft: 10,
+    height: 60,
   }
 
 });

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet, TouchableHighlight } from 'react-native';
 import { Button } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
@@ -12,17 +12,19 @@ export default class MotionScreen extends React.Component {
     return (
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.containerUp}>
-          <Button
-            icon={
-              <Icon
-                name="arrow-up"
-                size={100}
-              />
-            }
-            title=""
-            type="outline"
-            onPress={() => {}}
-          />
+          <TouchableHighlight>
+            <Button
+              icon={
+                <Icon
+                  name="arrow-up"
+                  size={100}
+                />
+              }
+              title=""
+              type="outline"
+              onPress={() => {}}
+            />
+          </TouchableHighlight>
         </ScrollView>
         <ScrollView contentContainerStyle={styles.containerLeftRight}>
           <Button
