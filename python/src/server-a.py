@@ -3,16 +3,15 @@ import sys
 import threading
 from flask import Flask, jsonify, request, abort
 
-from arduino import Arduino
-from buzzer import beep
-from display import Display
-from play import Player
-from temperature_humidity import get_temp_humidity
+from lib.arduino import Arduino
+from lib.buzzer import beep
+from lib.display import Display
+from lib.play import Player
+from lib.temperature_humidity import get_temp_humidity
 
 
 HOST = '0.0.0.0'
 PORT = 5010
-HTTP_404_NOT_FOUND = 404
 
 TIMEOUT = 10.0 # Windows will sleep forever, ignore Ctrl+C, and my keyboard does not have the 'break' key...
 POLL_INTERVAL = 0.1 # seconds
@@ -25,6 +24,7 @@ WEIGHT_CRITICAL = 23.0 # kg
 HUMID_WARNING = 30.0 # kg
 TEMPERATURE_WARNING = 25.0 # kg
 
+HTTP_404_NOT_FOUND = 404
 PAGE_NAME_TAG = 0
 PAGE_WEIGHT_WARNING = 1
 PAGE_WEIGHT_CRITICAL = 2

@@ -4,7 +4,7 @@ import sys
 
 from flask import Flask
 
-from arduino import Arduino
+from libs.arduino import Arduino
 
 
 HTTP_200_OK = 200
