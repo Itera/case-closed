@@ -37,3 +37,42 @@ prepare_deps:
 
 remove_deps:
 	sudo pip remove -r ./python/requirements.txt
+
+wireguard:
+	sudo apt-get update
+	sudo apt-get upgrade 
+	sudo apt-get install raspberrypi-kernel-headers
+	echo "deb http://deb.debian.org/debian/ unstable main" | sudo tee --append /etc/apt/sources.list.d/unstable.list
+	sudo apt-get install dirmngr 
+	sudo apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 8B48AD6246925553 
+	printf 'Package: *\nPin: release a=unstable\nPin-Priority: 150\n' | sudo tee --append /etc/apt/preferences.d/limit-unstable
+	sudo apt-get update
+	sudo apt-get install wireguard 
+	sudo reboot
+
+keys:
+	wg genkey | tee privatekey | wg pubkey > publickey
+	@echo Use generated privatekey and publickey in Wireguard config
+
+harden:
+	# Blocks all requests not passing through Wireguard VPN
+	# Obs! Not thouroghly tested. Might have unforseen effects
+	#allow related,established
+	sudo iptables -A INPUT  -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+	#Don't mess with loopback
+	sudo iptables -A INPUT -i lo -j ACCEPT
+	#Don't mess with Wireguard
+	sudo iptables -A INPUT -i wg0 -j ACCEPT
+	#literally drop everything else on every adapter
+	sudo iptables -A INPUT -j DROP
+
+	#allow related,established
+	sudo iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+	#Don't mess with loopback
+	sudo iptables -A FORWARD -i lo -j ACCEPT
+	#Don't mess with Wireguard
+	sudo iptables -A FORWARD -i wg0 -j ACCEPT
+
+	#anything not allowed anywhere dropped.
+	sudo iptables -A FORWARD -j DROP
+	sudo reboot
