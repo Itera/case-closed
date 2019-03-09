@@ -83,3 +83,8 @@ harden:
 	#anything not allowed anywhere dropped.
 	sudo iptables -A FORWARD -j DROP
 	sudo reboot
+
+native-app:
+	yarn --cwd react-native/ReactApp
+	yarn --cwd react-native/ReactApp start
+	yarn start
