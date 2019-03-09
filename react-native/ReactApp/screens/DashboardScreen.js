@@ -7,13 +7,11 @@ import {
 } from 'react-native';
 import { MapView } from 'expo';
 
+import { getSensors } from '../api/service';
+
 
 export default class HomeScreen extends React.Component {
   state = {
-    weight: 32,
-    temp: 18,
-    humidity: 0.28,
-    altitude: 0,
     latitude: 37.78825,
     longitude: -122.4324,
     locationDelta: 0.0922,
@@ -23,19 +21,30 @@ export default class HomeScreen extends React.Component {
     title: 'Dashboard',
   };
 
+  componentDidMount = () => {
+    setTimeout(() => {
+      this.pullData()
+    }, 500);
+  };
+
+  pullData = () => {
+    getSensors().then(res => this.setState(res));
+  };
+
   render() {
     const {
       latitude,
       longitude,
       locationDelta,
       weight,
-      temp,
+      temperature,
       humidity,
-      altitude,
     } = this.state;
     return (
       <View style={styles.container}>
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+          <Text style={styles.weightText}>Hello :)</Text>
+          <Text style={styles.centerText}>Here is the location of your suitcase:</Text>
           <MapView
             style={styles.map}
             initialRegion={{
@@ -46,15 +55,15 @@ export default class HomeScreen extends React.Component {
             }}
           />
           <View style={styles.weightContainer}>
-            <Text>The weight of your suitcase is:</Text>
+            <Text>The weight of your suitcase is</Text>
             <Text style={styles.weightText}>{weight} kg</Text>
           </View>
 
           <View style={styles.sensorsContainer}>
-            <Text>Temperature: {temp}</Text>
-            <Text>Humidity: {humidity}</Text>
-            <Text>Altitude: {altitude} m</Text>
+            <Text>The temperature is {temperature} °C,</Text>
+            <Text>and there is {humidity}% humidity.</Text>
           </View>
+          <Text style={styles.centerText}>Have a nice travel!</Text>
 
         </ScrollView>
       </View>
@@ -70,24 +79,29 @@ const styles = StyleSheet.create({
   map: {
     marginLeft: 'auto',
     marginRight: 'auto',
-    height: 300,
-    width: 300,
+    height: 250,
+    width: 250,
+  },
+  centerText: {
+    textAlign: 'center',
+    marginBottom: 10,
   },
   weightText: {
-    marginTop: 10,
-    fontSize: 40,
+    marginTop: 5,
+    marginBottom: 10,
+    fontSize: 35,
     textAlign: 'center',
   },
   contentContainer: {
-    paddingTop: 30,
+    paddingTop: 20,
   },
   weightContainer: {
     alignItems: 'center',
-    marginTop: 30,
-    marginBottom: 20,
+    marginTop: 15,
   },
   sensorsContainer: {
     alignItems: 'center',
     marginHorizontal: 50,
+    marginBottom: 10,
   },
 });
