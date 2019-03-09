@@ -1,38 +1,9 @@
-# case-closed
-Project repo for Ariot19
+# CaseClosed
 
-### Badges
+This is the GitHub repository for the code used in the [Arctic IOT Challenge](http://ariot.no/) 2019. Our team name was CaseClosed, and our project revolves around creating a smart suitcase. Here is a sketch of our planned solution:
 
-- [x] **[Description here]**
-- [ ] AckWard
-- [ ] ~~Attach of the drones~~
-- [ ] **Babelfish (5 programming languages)**
-- [ ] **Cloud city**
-- [ ] Dr. Who
-- [ ] **Eyes wide shutter**
-- [x] **First brunch**
-- [ ] **Force field**
-- [ ] **HUD**
-- [ ] **I fixed it!**
-- [ ] **Instant**
-- [ ] **It's alive!**
-- [ ] **Make love, not war**
-- [ ] **Native**
-- [ ] Race condition
-- [ ] Shiny pixels
-- [x] SmartCamp
-- [ ] Smooth object
-- [ ] The analyst
-- [ ] The assembler
-- [ ] **The presenter**
-- [x] **Solder soldier**
-- [ ] **Three dimensions**
-- [ ] Wear me!
-- [ ] **This is intense!**
-- [ ] Leave no one behind
-- [ ] Savvy
-- [ ] Under construction
-- [ ] Treehugger
-- [ ] Buttception
-- [ ] Traveller
-- [ ] We are the robots
+![](https://i.imgur.com/YxAOcch.jpg)
+
+## Getting started
+
+Under construction.
