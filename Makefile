@@ -9,10 +9,17 @@ uninstall: stop disable remove remove_deps
 copy:
 	sudo cp ./services/caseClosed-api.service /etc/systemd/system/.
 	sudo cp ./services/caseClosed-rfid.service /etc/systemd/system/.
+	sudo mkdir -p /usr/local/bin/caseClosed/python/libs/
+	sudo cp ./python/src/* /usr/local/bin/caseClosed/python/*
+	sudo cp ./python/src/libs/* /usr/local/bin/caseClosed/python/libs/*
 
 remove:
 	sudo rm /etc/systemd/system/caseClosed-api.service
 	sudo rm /etc/systemd/system/caseClosed-rfid.service
+	sudo rm /usr/local/bin/caseClosed/python/*
+	sudo rm /usr/local/bin/caseClosed/python/libs/*
+	sudo rmdir /usr/local/bin/caseClosed/python/libs/
+	sudo rmdir /usr/local/bin/caseClosed/python/
 
 start:
 	sudo systemctl start caseClosed-api.service
